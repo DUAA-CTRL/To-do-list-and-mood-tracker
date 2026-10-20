@@ -1,0 +1,2251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Task Garden</title>
+
+<style>
+*{box-sizing:border-box}
+
+:root{
+ --bg:#f4f2f7;--card:#fff;--soft:#faf9fc;--text:#292631;
+ --muted:#8d8997;--primary:#6d5ca8;--primary2:#8977bd;
+ --border:#e7e3ec;--danger:#c9687e;--green:#62a886;
+ --shadow:0 16px 40px rgba(45,38,62,.08)
+}
+
+body.dark{
+ --bg:#15131a;--card:#211e28;--soft:#28242f;--text:#f5f2f8;
+ --muted:#aaa5b2;--primary:#9b8bd0;--primary2:#b09fe0;
+ --border:#393440;--danger:#d4778c;--green:#79bb9b;
+ --shadow:0 18px 45px rgba(0,0,0,.25)
+}
+
+body{
+ margin:0;min-height:100vh;padding:22px 10px 45px;
+ font-family:"Segoe UI",Arial,sans-serif;color:var(--text);
+ background:
+ radial-gradient(circle at 3% 2%,rgba(109,92,168,.12),transparent 270px),
+ radial-gradient(circle at 100% 15%,rgba(205,115,145,.09),transparent 250px),
+ var(--bg);transition:.3s
+}
+
+button,input,select{font:inherit}
+button{cursor:pointer}
+
+.app{width:min(1120px,100%);margin:auto}
+
+/* HEADER */
+
+.header{
+ display:flex;justify-content:space-between;align-items:center;
+ margin-bottom:17px
+}
+
+.brand{display:flex;align-items:center;gap:12px}
+
+.logo{
+ width:48px;height:48px;border-radius:16px;display:grid;
+ place-items:center;background:linear-gradient(140deg,var(--primary),var(--primary2));
+ color:#fff;font-size:23px;box-shadow:0 10px 25px rgba(109,92,168,.25)
+}
+
+.brand h1{margin:0;font-size:25px;letter-spacing:-.8px}
+.brand p{margin:3px 0 0;font-size:10px;color:var(--muted)}
+
+.header-actions{display:flex;gap:7px}
+
+.icon-btn{
+ width:43px;height:43px;border:1px solid var(--border);
+ border-radius:13px;background:var(--card);color:var(--text)
+}
+
+/* DASHBOARD */
+
+.dashboard{
+ display:grid;grid-template-columns:1.45fr .75fr;gap:15px;margin-bottom:15px
+}
+
+.hero{
+ min-height:205px;padding:27px;border-radius:26px;color:#fff;
+ position:relative;overflow:hidden;
+ background:linear-gradient(135deg,#67559f,#806db5 60%,#9582c4);
+ box-shadow:0 18px 40px rgba(91,73,145,.23)
+}
+
+.hero:before,.hero:after{
+ content:"";position:absolute;border-radius:50%;background:rgba(255,255,255,.08)
+}
+.hero:before{width:220px;height:220px;right:-75px;top:-100px}
+.hero:after{width:130px;height:130px;right:100px;bottom:-80px}
+
+.hero-content{position:relative;z-index:2}
+.eyebrow{font-size:9px;font-weight:900;letter-spacing:1.5px;text-transform:uppercase;opacity:.7}
+.hero h2{margin:8px 0 5px;font-size:30px;letter-spacing:-1px}
+.hero p{max-width:450px;margin:0 0 25px;font-size:11px;line-height:1.5;opacity:.78}
+
+.progress-head{
+ display:flex;justify-content:space-between;font-size:10px;
+ font-weight:900;margin-bottom:7px
+}
+
+.progress{height:9px;border-radius:30px;background:rgba(255,255,255,.2);overflow:hidden}
+.progress-bar{height:100%;width:0;background:#fff;border-radius:30px;transition:.45s}
+
+.hero-bottom{
+ display:flex;gap:15px;margin-top:18px;font-size:9px;font-weight:800
+}
+
+.date-card{
+ background:var(--card);border:1px solid var(--border);border-radius:26px;
+ padding:23px;box-shadow:var(--shadow);display:flex;align-items:center;gap:18px
+}
+
+.calendar{
+ width:78px;height:86px;flex:none;border-radius:19px;background:var(--soft);
+ color:var(--primary);display:flex;flex-direction:column;
+ justify-content:center;align-items:center
+}
+
+.calendar strong{font-size:31px;line-height:1}
+.calendar span{margin-top:5px;font-size:9px;font-weight:900}
+
+.date-info .day{font-size:18px;font-weight:900}
+.full-date{color:var(--muted);font-size:10px;margin-top:6px}
+
+/* STATS */
+
+.stats{
+ display:grid;grid-template-columns:repeat(5,1fr);gap:9px;margin-bottom:16px
+}
+
+.stat{
+ padding:13px;background:var(--card);border:1px solid var(--border);
+ border-radius:18px;box-shadow:0 5px 18px rgba(45,38,62,.05)
+}
+
+.stat-row{display:flex;align-items:center;justify-content:space-between}
+.stat strong{font-size:21px}
+.stat-icon{
+ width:30px;height:30px;border-radius:10px;display:grid;
+ place-items:center;background:var(--soft);font-size:13px
+}
+.stat small{display:block;margin-top:5px;color:var(--muted);font-size:8px;font-weight:800}
+
+/* MAIN */
+
+.main{display:grid;grid-template-columns:minmax(0,1fr) 310px;gap:16px}
+
+.panel{
+ background:var(--card);border:1px solid var(--border);
+ border-radius:24px;box-shadow:var(--shadow)
+}
+
+.tasks-panel{padding:21px}
+
+.panel-title{
+ display:flex;justify-content:space-between;align-items:center;margin-bottom:14px
+}
+.panel-title h3{margin:0;font-size:17px}
+.panel-title span{color:var(--muted);font-size:9px}
+
+/* ADD */
+
+.add-form{
+ display:grid;grid-template-columns:minmax(0,1fr) 125px 115px 72px;gap:7px
+}
+
+input,select{
+ border:1px solid var(--border);outline:none;border-radius:12px;
+ background:var(--soft);color:var(--text);padding:11px 12px;transition:.2s
+}
+
+input:focus,select:focus{
+ border-color:var(--primary);box-shadow:0 0 0 3px rgba(109,92,168,.12)
+}
+
+.add-btn{
+ border:0;border-radius:12px;color:#fff;background:var(--primary);font-weight:900
+}
+.add-btn:hover{background:var(--primary2)}
+
+/* STICKERS */
+
+.options{
+ display:flex;align-items:center;flex-wrap:wrap;gap:5px;margin:9px 0 13px
+}
+.options-label{color:var(--muted);font-size:9px;font-weight:900;margin-right:2px}
+
+.sticker{
+ border:1px solid var(--border);border-radius:9px;background:var(--soft);
+ padding:5px 7px;transition:.2s
+}
+.sticker:hover{transform:translateY(-2px)}
+.sticker.selected{border-color:var(--primary);background:rgba(109,92,168,.1)}
+
+/* SEARCH / FILTER */
+
+.search-row{display:grid;grid-template-columns:1fr 155px;gap:7px;margin-bottom:8px}
+
+.quick-filters{
+ display:flex;gap:5px;overflow-x:auto;padding:2px 0 9px
+}
+
+.quick{
+ flex:none;border:1px solid var(--border);border-radius:10px;
+ padding:7px 10px;background:var(--soft);color:var(--muted);
+ font-size:8px;font-weight:900
+}
+
+.quick.active{
+ color:var(--primary);border-color:var(--primary);
+ background:rgba(109,92,168,.1)
+}
+
+.toolbar{display:flex;gap:7px;margin-bottom:12px}
+.toolbar select{flex:1}
+
+.clear-btn{
+ border:0;border-radius:11px;padding:9px 12px;
+ background:#f7e4e9;color:#a94e66;font-size:9px;font-weight:900
+}
+
+/* TASK */
+
+.task-list{list-style:none;padding:0;margin:0}
+
+.task-card{
+ display:flex;align-items:center;gap:10px;padding:12px;margin:7px 0;
+ border:1px solid var(--border);border-radius:15px;background:var(--soft);
+ transition:.2s;animation:taskIn .2s ease
+}
+
+.task-card:hover{transform:translateY(-1px);box-shadow:0 5px 18px rgba(45,38,62,.06)}
+
+@keyframes taskIn{
+ from{opacity:0;transform:translateY(5px)}
+ to{opacity:1;transform:translateY(0)}
+}
+
+.check{
+ width:19px;height:19px;flex:none;accent-color:var(--primary);cursor:pointer
+}
+
+.task{flex:1;min-width:0}
+.task-line{display:flex;align-items:center;gap:8px}
+.sticker-view{font-size:18px;flex:none}
+.task-text{font-size:12px;font-weight:850;word-break:break-word}
+
+/* STRIKE */
+
+.completed .task-text{
+ text-decoration:line-through;
+ text-decoration-thickness:2px;
+ text-decoration-color:var(--muted);
+ color:var(--muted)
+}
+
+.meta{display:flex;flex-wrap:wrap;gap:5px;margin-top:6px}
+.badge{padding:4px 7px;border-radius:20px;font-size:8px;font-weight:900}
+.low{background:#e3f1e9;color:#4b806a}
+.medium{background:#f7edcf;color:#92752c}
+.high{background:#f8dfe6;color:#a64c66}
+.cat{background:#ece7f5;color:#715c98}
+.date{background:#e7ebf7;color:#5a6b9d}
+.overdue{background:#f8dcdc;color:#b24c58}
+.time{background:#e4f0f2;color:#467d82}
+
+.action{
+ border:0;border-radius:9px;padding:7px 9px;color:#fff;font-size:8px;font-weight:900
+}
+.edit{background:#8175ae}
+.delete{background:var(--danger)}
+
+.empty{justify-content:center;color:var(--muted);padding:30px}
+
+/* SIDE */
+
+.side{padding:19px}
+.side-section+.side-section{margin-top:18px;padding-top:18px;border-top:1px solid var(--border)}
+
+.section-title{font-size:13px;font-weight:900}
+.section-subtitle{color:var(--muted);font-size:9px;line-height:1.5;margin:4px 0 11px}
+
+/* GOAL */
+
+.goal-card{padding:14px;border-radius:17px;background:rgba(109,92,168,.08)}
+.goal-row{display:flex;gap:6px}
+.goal-row input{min-width:0;background:var(--card)}
+.goal-btn{
+ border:0;border-radius:10px;padding:0 11px;color:#fff;
+ background:var(--primary);font-size:9px;font-weight:900
+}
+.goal-track{height:7px;margin-top:10px;border-radius:20px;overflow:hidden;background:rgba(109,92,168,.15)}
+.goal-bar{width:0;height:100%;background:var(--primary);transition:.45s}
+.goal-text{margin-top:6px;color:var(--muted);font-size:8px;font-weight:800}
+
+/* MOOD */
+
+.mood-options{display:grid;grid-template-columns:repeat(5,1fr);gap:5px}
+
+.mood{
+ border:1px solid var(--border);border-radius:12px;padding:8px 3px;
+ background:var(--soft);transition:.2s
+}
+.mood:hover{transform:translateY(-2px)}
+.mood.selected{border-color:var(--primary);background:rgba(109,92,168,.1)}
+.mood-emoji{display:block;font-size:20px;margin-bottom:3px}
+.mood-name{display:block;color:var(--muted);font-size:7px;font-weight:800}
+
+.mood-note{width:100%;margin-top:7px}
+
+.save-mood{
+ width:100%;border:0;border-radius:11px;padding:10px;margin-top:7px;
+ color:#fff;background:var(--primary);font-size:9px;font-weight:900
+}
+
+.today-mood{
+ margin-top:8px;padding:9px;text-align:center;border-radius:11px;
+ background:var(--soft);color:var(--muted);font-size:9px
+}
+
+/* CHARTS */
+
+.chart-title{font-size:11px;font-weight:900;margin-bottom:9px}
+
+.chart{
+ height:105px;display:flex;align-items:flex-end;gap:7px;
+ padding:7px 2px 0
+}
+
+.bar-wrap{
+ flex:1;height:100%;display:flex;flex-direction:column;
+ justify-content:flex-end;align-items:center;gap:4px
+}
+
+.bar{
+ width:100%;max-width:24px;min-height:3px;
+ border-radius:6px 6px 3px 3px;background:var(--primary);
+ transition:.5s
+}
+
+.bar-label{font-size:7px;color:var(--muted);font-weight:800}
+.bar-number{font-size:7px;color:var(--muted)}
+
+/* MOOD HISTORY */
+
+.history-title{margin-bottom:8px;font-size:11px;font-weight:900}
+
+.mood-entry{
+ display:flex;align-items:center;gap:8px;padding:8px;margin-top:5px;
+ border-radius:10px;background:var(--soft)
+}
+
+.history-emoji{font-size:18px}
+.history-info{min-width:0}
+.history-info strong{display:block;font-size:9px}
+.history-info small{
+ display:block;margin-top:2px;color:var(--muted);font-size:7px;
+ white-space:nowrap;overflow:hidden;text-overflow:ellipsis
+}
+
+/* FOCUS */
+
+.focus-box{
+ padding:14px;border-radius:16px;
+ background:linear-gradient(135deg,rgba(109,92,168,.1),rgba(137,119,189,.06));
+ text-align:center
+}
+
+.focus-task{
+ min-height:25px;font-size:11px;font-weight:900;margin-bottom:9px
+}
+
+.timer{
+ font-size:30px;font-weight:900;letter-spacing:1px;color:var(--primary)
+}
+
+.focus-actions{display:flex;gap:5px;margin-top:8px}
+.focus-actions button{
+ flex:1;border:0;border-radius:9px;padding:8px;
+ background:var(--primary);color:#fff;font-size:8px;font-weight:900
+}
+.focus-actions .stop{background:var(--soft);color:var(--text);border:1px solid var(--border)}
+
+/* FOOTER */
+
+.footer{text-align:center;color:var(--muted);font-size:9px;margin-top:17px}
+
+/* TOAST */
+
+.toast{
+ position:fixed;right:18px;bottom:18px;z-index:100;
+ padding:12px 16px;border-radius:13px;color:#fff;
+ background:#292631;box-shadow:0 12px 30px rgba(0,0,0,.2);
+ font-size:10px;font-weight:800;
+ transform:translateY(80px);opacity:0;pointer-events:none;
+ transition:.3s
+}
+
+.toast.show{transform:translateY(0);opacity:1}
+
+/* FOCUS OVERLAY */
+
+.focus-overlay{
+ position:fixed;inset:0;z-index:90;display:none;
+ place-items:center;background:rgba(15,13,20,.78);backdrop-filter:blur(8px)
+}
+
+.focus-overlay.show{display:grid}
+
+.focus-modal{
+ width:min(500px,calc(100% - 25px));padding:30px;
+ border-radius:27px;background:var(--card);color:var(--text);
+ text-align:center;box-shadow:0 25px 70px rgba(0,0,0,.3)
+}
+
+.focus-modal .big-timer{font-size:70px;font-weight:900;color:var(--primary);margin:15px 0}
+.focus-modal h2{margin:0;font-size:19px}
+.focus-modal p{font-size:11px;color:var(--muted)}
+
+.focus-modal button{
+ border:0;border-radius:12px;padding:10px 18px;
+ background:var(--primary);color:#fff;font-weight:900;font-size:10px
+}
+
+/* MOBILE */
+
+@media(max-width:900px){
+ .dashboard,.main{grid-template-columns:1fr}
+ .stats{grid-template-columns:repeat(3,1fr)}
+}
+
+@media(max-width:680px){
+ body{padding:14px 7px 35px}
+ .brand h1{font-size:21px}
+ .stats{grid-template-columns:repeat(2,1fr)}
+ .stats .stat:last-child{grid-column:1/-1}
+ .add-form{grid-template-columns:1fr 1fr}
+ .add-form input[type=text]{grid-column:1/-1}
+ .add-btn{min-height:43px}
+ .search-row{grid-template-columns:1fr}
+ .task-card{flex-wrap:wrap}
+ .task{min-width:calc(100% - 38px)}
+ .hero{padding:23px}
+ .hero h2{font-size:25px}
+}
+</style>
+</head>
+
+<body>
+
+<div class="app">
+
+<header class="header">
+
+ <div class="brand">
+  <div class="logo">🌱</div>
+  <div>
+   <h1>Task Garden</h1>
+   <p>Plan your day. Keep your mind clear.</p>
+  </div>
+ </div>
+
+ <div class="header-actions">
+  <button class="icon-btn" id="notificationBtn" title="Notifications">🔔</button>
+  <button class="icon-btn" id="themeBtn">🌙</button>
+ </div>
+
+</header>
+
+
+<section class="dashboard">
+
+ <div class="hero">
+
+  <div class="hero-content">
+
+   <div class="eyebrow">Your daily workspace</div>
+
+   <h2 id="greeting">Make today count.</h2>
+
+   <p id="motivation">
+    Organise your tasks, track your progress and check in with yourself.
+   </p>
+
+   <div class="progress-head">
+    <span>Today's progress</span>
+    <span id="percent">0%</span>
+   </div>
+
+   <div class="progress">
+    <div class="progress-bar" id="progressBar"></div>
+   </div>
+
+   <div class="hero-bottom">
+    <span id="streakText">🔥 0 day streak</span>
+    <span id="scoreText">🏆 Score 0</span>
+   </div>
+
+  </div>
+
+ </div>
+
+
+ <div class="date-card">
+
+  <div class="calendar">
+   <strong id="dateNumber"></strong>
+   <span id="monthName"></span>
+  </div>
+
+  <div class="date-info">
+   <div class="day" id="dayName"></div>
+   <div class="full-date" id="fullDate"></div>
+  </div>
+
+ </div>
+
+</section>
+
+
+<section class="stats">
+
+ <div class="stat">
+  <div class="stat-row">
+   <strong id="total">0</strong>
+   <div class="stat-icon">📝</div>
+  </div>
+  <small>Total tasks</small>
+ </div>
+
+ <div class="stat">
+  <div class="stat-row">
+   <strong id="done">0</strong>
+   <div class="stat-icon">✓</div>
+  </div>
+  <small>Completed</small>
+ </div>
+
+ <div class="stat">
+  <div class="stat-row">
+   <strong id="pending">0</strong>
+   <div class="stat-icon">◷</div>
+  </div>
+  <small>Pending</small>
+ </div>
+
+ <div class="stat">
+  <div class="stat-row">
+   <strong id="overdueCount">0</strong>
+   <div class="stat-icon">!</div>
+  </div>
+  <small>Overdue</small>
+ </div>
+
+ <div class="stat">
+  <div class="stat-row">
+   <strong id="streak">0</strong>
+   <div class="stat-icon">🔥</div>
+  </div>
+  <small>Day streak</small>
+ </div>
+
+</section>
+
+
+<main class="main">
+
+
+<section class="panel tasks-panel">
+
+ <div class="panel-title">
+  <h3>My Tasks</h3>
+  <span id="taskLabel">0 tasks</span>
+ </div>
+
+
+ <div class="add-form">
+
+  <input id="taskInput" type="text" placeholder="Write your task here...">
+
+  <input id="dateInput" type="date">
+
+  <select id="priorityInput">
+   <option value="low">Low</option>
+   <option value="medium" selected>Medium</option>
+   <option value="high">High</option>
+  </select>
+
+  <button class="add-btn" id="addBtn">Add</button>
+
+ </div>
+
+
+ <div class="options">
+
+  <span class="options-label">Sticker</span>
+
+  <button class="sticker selected" data-sticker="🌷">🌷</button>
+  <button class="sticker" data-sticker="🌿">🌿</button>
+  <button class="sticker" data-sticker="🦋">🦋</button>
+  <button class="sticker" data-sticker="☕">☕</button>
+  <button class="sticker" data-sticker="🎧">🎧</button>
+  <button class="sticker" data-sticker="📌">📌</button>
+  <button class="sticker" data-sticker="✨">✨</button>
+  <button class="sticker" data-sticker="🌻">🌻</button>
+
+  <select id="categoryInput">
+   <option value="Study">Study</option>
+   <option value="Personal">Personal</option>
+   <option value="Work">Work</option>
+   <option value="Shopping">Shopping</option>
+   <option value="Health">Health</option>
+   <option value="Other">Other</option>
+  </select>
+
+  <input id="timeInput" type="time" title="Reminder time">
+
+ </div>
+
+
+ <div class="search-row">
+
+  <input id="searchInput" type="search" placeholder="Search tasks...">
+
+  <select id="categoryFilter">
+   <option value="all">All categories</option>
+   <option>Study</option>
+   <option>Personal</option>
+   <option>Work</option>
+   <option>Shopping</option>
+   <option>Health</option>
+   <option>Other</option>
+  </select>
+
+ </div>
+
+
+ <div class="quick-filters">
+
+  <button class="quick active" data-view="all">All</button>
+  <button class="quick" data-view="today">Today</button>
+  <button class="quick" data-view="upcoming">Upcoming</button>
+  <button class="quick" data-view="overdue">Overdue</button>
+
+ </div>
+
+
+ <div class="toolbar">
+
+  <select id="filter">
+   <option value="all">All tasks</option>
+   <option value="pending">Pending</option>
+   <option value="completed">Completed</option>
+  </select>
+
+  <select id="sort">
+   <option value="newest">Newest first</option>
+   <option value="oldest">Oldest first</option>
+   <option value="priority">Priority</option>
+   <option value="date">Due date</option>
+  </select>
+
+  <button class="clear-btn" id="clearBtn">Clear completed</button>
+
+ </div>
+
+
+ <ul class="task-list" id="list"></ul>
+
+</section>
+
+
+<aside class="panel side">
+
+
+<section class="side-section">
+
+ <div class="section-title">Daily goal</div>
+
+ <div class="section-subtitle">
+  Set a small target and keep moving.
+ </div>
+
+ <div class="goal-card">
+
+  <div class="goal-row">
+   <input id="goalInput" type="number" min="1" placeholder="Tasks">
+   <button class="goal-btn" id="goalBtn">Set goal</button>
+  </div>
+
+  <div class="goal-track">
+   <div class="goal-bar" id="goalBar"></div>
+  </div>
+
+  <div class="goal-text" id="goalText">
+   Set your daily goal.
+  </div>
+
+ </div>
+
+</section>
+
+
+<section class="side-section">
+
+ <div class="section-title">Mood check-in</div>
+
+ <div class="section-subtitle">
+  How are you feeling today?
+ </div>
+
+ <div class="mood-options">
+
+  <button class="mood" data-mood="Amazing" data-emoji="😄">
+   <span class="mood-emoji">😄</span>
+   <span class="mood-name">Amazing</span>
+  </button>
+
+  <button class="mood" data-mood="Happy" data-emoji="🙂">
+   <span class="mood-emoji">🙂</span>
+   <span class="mood-name">Happy</span>
+  </button>
+
+  <button class="mood" data-mood="Calm" data-emoji="😌">
+   <span class="mood-emoji">😌</span>
+   <span class="mood-name">Calm</span>
+  </button>
+
+  <button class="mood" data-mood="Low" data-emoji="😔">
+   <span class="mood-emoji">😔</span>
+   <span class="mood-name">Low</span>
+  </button>
+
+  <button class="mood" data-mood="Bad" data-emoji="😞">
+   <span class="mood-emoji">😞</span>
+   <span class="mood-name">Bad</span>
+  </button>
+
+ </div>
+
+ <input class="mood-note" id="moodNote" maxlength="100"
+        placeholder="Add a short note...">
+
+ <button class="save-mood" id="saveMood">
+  Save today's mood
+ </button>
+
+ <div class="today-mood" id="todayMood">
+  No mood recorded today.
+ </div>
+
+</section>
+
+
+<section class="side-section">
+
+ <div class="chart-title">7-day productivity</div>
+
+ <div class="chart" id="productivityChart"></div>
+
+</section>
+
+
+<section class="side-section">
+
+ <div class="chart-title">7-day mood</div>
+
+ <div class="chart" id="moodChart"></div>
+
+</section>
+
+
+<section class="side-section">
+
+ <div class="history-title">Recent moods</div>
+
+ <div id="moodHistory"></div>
+
+</section>
+
+
+<section class="side-section">
+
+ <div class="section-title">Focus mode</div>
+
+ <div class="section-subtitle">
+  Focus on one important task without distractions.
+ </div>
+
+ <div class="focus-box">
+
+  <div class="focus-task" id="focusTask">
+   Select a task to begin.
+  </div>
+
+  <div class="timer" id="miniTimer">25:00</div>
+
+  <div class="focus-actions">
+   <button id="focusStart">Start</button>
+   <button class="stop" id="focusReset">Reset</button>
+  </div>
+
+ </div>
+
+</section>
+
+</aside>
+
+</main>
+
+
+<div class="footer">
+ Task Garden · Small steps, steady progress.
+</div>
+
+</div>
+
+
+<div class="toast" id="toast"></div>
+
+
+<div class="focus-overlay" id="focusOverlay">
+
+ <div class="focus-modal">
+
+  <h2>Focus Mode 🌿</h2>
+
+  <p id="focusModalTask">
+   Focus on your task.
+  </p>
+
+  <div class="big-timer" id="bigTimer">25:00</div>
+
+  <button id="closeFocus">
+   Finish focus
+  </button>
+
+ </div>
+
+</div>
+
+
+<script>
+
+const TASK_KEY="task_garden_tasks_v5";
+const MOOD_KEY="task_garden_moods_v5";
+const SETTINGS_KEY="task_garden_settings_v5";
+const HISTORY_KEY="task_garden_history_v5";
+
+let tasks=[];
+let moods=[];
+let history=[];
+
+let settings={
+ goal:5,
+ dark:false
+};
+
+let selectedSticker="🌷";
+let selectedMood=null;
+let quickView="all";
+
+let focusSeconds=1500;
+let focusInterval=null;
+let focusRunning=false;
+
+
+const $=id=>document.getElementById(id);
+
+
+function load(){
+
+ try{
+  tasks=JSON.parse(localStorage.getItem(TASK_KEY))||[];
+ }catch(e){tasks=[]}
+
+ try{
+  moods=JSON.parse(localStorage.getItem(MOOD_KEY))||[];
+ }catch(e){moods=[]}
+
+ try{
+  history=JSON.parse(localStorage.getItem(HISTORY_KEY))||[];
+ }catch(e){history=[]}
+
+ try{
+  settings={
+   ...settings,
+   ...(JSON.parse(localStorage.getItem(SETTINGS_KEY))||{})
+  };
+ }catch(e){}
+
+}
+
+load();
+
+
+function save(){
+
+ localStorage.setItem(TASK_KEY,JSON.stringify(tasks));
+ localStorage.setItem(MOOD_KEY,JSON.stringify(moods));
+ localStorage.setItem(HISTORY_KEY,JSON.stringify(history));
+ localStorage.setItem(SETTINGS_KEY,JSON.stringify(settings));
+
+}
+
+
+function today(){
+
+ const d=new Date();
+
+ d.setMinutes(
+  d.getMinutes()-d.getTimezoneOffset()
+ );
+
+ return d.toISOString().slice(0,10);
+
+}
+
+
+function dateObject(date){
+
+ return new Date(date+"T00:00:00");
+
+}
+
+
+function formatDate(date){
+
+ return dateObject(date).toLocaleDateString(
+  undefined,
+  {day:"numeric",month:"short",year:"numeric"}
+ );
+
+}
+
+
+function esc(value){
+
+ return String(value).replace(
+  /[&<>"']/g,
+  c=>({
+   "&":"&amp;",
+   "<":"&lt;",
+   ">":"&gt;",
+   '"':"&quot;",
+   "'":"&#39;"
+  }[c])
+ );
+
+}
+
+
+function isOverdue(task){
+
+ return !!(
+  task.date &&
+  !task.done &&
+  task.date<today()
+ );
+
+}
+
+
+/* THEME */
+
+function applyTheme(){
+
+ document.body.classList.toggle(
+  "dark",
+  settings.dark
+ );
+
+ $("themeBtn").textContent=
+  settings.dark?"☀️":"🌙";
+
+}
+
+applyTheme();
+
+
+$("themeBtn").onclick=()=>{
+
+ settings.dark=!settings.dark;
+
+ save();
+ applyTheme();
+
+};
+
+
+/* DATE */
+
+const now=new Date();
+
+$("dateNumber").textContent=now.getDate();
+
+$("monthName").textContent=
+ now.toLocaleDateString(
+  undefined,
+  {month:"short"}
+ ).toUpperCase();
+
+$("dayName").textContent=
+ now.toLocaleDateString(
+  undefined,
+  {weekday:"long"}
+ );
+
+$("fullDate").textContent=
+ now.toLocaleDateString(
+  undefined,
+  {
+   day:"numeric",
+   month:"long",
+   year:"numeric"
+  }
+ );
+
+
+/* GREETING */
+
+function updateGreeting(){
+
+ const hour=new Date().getHours();
+
+ let greeting="Make today count.";
+
+ if(hour<12) greeting="Good morning. 🌤️";
+ else if(hour<18) greeting="Good afternoon. ☀️";
+ else greeting="Good evening. 🌙";
+
+ $("greeting").textContent=greeting;
+
+}
+
+updateGreeting();
+
+
+/* TOAST */
+
+let toastTimer;
+
+function toast(message){
+
+ const box=$("toast");
+
+ box.textContent=message;
+ box.classList.add("show");
+
+ clearTimeout(toastTimer);
+
+ toastTimer=setTimeout(
+  ()=>box.classList.remove("show"),
+  2200
+ );
+
+}
+
+
+/* STICKERS */
+
+document.querySelectorAll(".sticker").forEach(button=>{
+
+ button.onclick=()=>{
+
+  document.querySelectorAll(".sticker")
+   .forEach(x=>x.classList.remove("selected"));
+
+  button.classList.add("selected");
+
+  selectedSticker=button.dataset.sticker;
+
+ };
+
+});
+
+
+/* ADD TASK */
+
+function addTask(){
+
+ const text=$("taskInput").value.trim();
+
+ if(!text){
+
+  $("taskInput").focus();
+  return;
+
+ }
+
+
+ tasks.push({
+
+  id:Date.now()+"-"+Math.random(),
+
+  text,
+
+  date:$("dateInput").value,
+
+  priority:$("priorityInput").value,
+
+  sticker:selectedSticker,
+
+  category:$("categoryInput").value,
+
+  time:$("timeInput").value,
+
+  done:false,
+
+  created:Date.now(),
+
+  completedAt:null
+
+ });
+
+
+ $("taskInput").value="";
+ $("dateInput").value="";
+ $("timeInput").value="";
+ $("priorityInput").value="medium";
+
+ save();
+ render();
+
+ toast("Task added 🌱");
+
+ $("taskInput").focus();
+
+}
+
+
+$("addBtn").onclick=addTask;
+
+
+$("taskInput").onkeydown=e=>{
+
+ if(e.key==="Enter")
+  addTask();
+
+};
+
+
+/* TASK FILTER */
+
+function matchesQuick(task){
+
+ if(quickView==="all")
+  return true;
+
+ if(quickView==="today")
+  return task.date===today();
+
+ if(quickView==="upcoming")
+  return task.date && task.date>today();
+
+ if(quickView==="overdue")
+  return isOverdue(task);
+
+ return true;
+
+}
+
+
+/* RENDER */
+
+function render(){
+
+ const filter=$("filter").value;
+ const search=$("searchInput").value.trim().toLowerCase();
+ const category=$("categoryFilter").value;
+ const sort=$("sort").value;
+
+
+ let shown=tasks.filter(task=>{
+
+  const filterOK=
+   filter==="all" ||
+   (filter==="pending"&&!task.done) ||
+   (filter==="completed"&&task.done);
+
+  const searchOK=
+   !search ||
+   task.text.toLowerCase().includes(search);
+
+  const categoryOK=
+   category==="all" ||
+   task.category===category;
+
+  return filterOK&&searchOK&&categoryOK&&matchesQuick(task);
+
+ });
+
+
+ /* SORT */
+
+ const priorityValue={
+  high:3,
+  medium:2,
+  low:1
+ };
+
+
+ shown.sort((a,b)=>{
+
+  if(sort==="newest")
+   return (b.created||0)-(a.created||0);
+
+  if(sort==="oldest")
+   return (a.created||0)-(b.created||0);
+
+  if(sort==="priority")
+   return (
+    priorityValue[b.priority]-
+    priorityValue[a.priority]
+   );
+
+  if(sort==="date"){
+
+   if(!a.date) return 1;
+   if(!b.date) return -1;
+
+   return a.date.localeCompare(b.date);
+
+  }
+
+ });
+
+
+ const list=$("list");
+
+ list.innerHTML="";
+
+
+ if(!shown.length){
+
+  list.innerHTML=`
+   <li class="task-card empty">
+    No matching tasks ✨
+   </li>
+  `;
+
+ }
+
+
+ shown.forEach(task=>{
+
+  const li=document.createElement("li");
+
+  li.className=
+   "task-card"+
+   (task.done?" completed":"");
+
+
+  li.innerHTML=`
+
+   <input
+    type="checkbox"
+    class="check"
+    ${task.done?"checked":""}
+   >
+
+   <div class="task">
+
+    <div class="task-line">
+
+     <span class="sticker-view">
+      ${esc(task.sticker||"🌷")}
+     </span>
+
+     <span class="task-text">
+      ${esc(task.text)}
+     </span>
+
+    </div>
+
+    <div class="meta">
+
+     <span class="badge ${esc(task.priority)}">
+      ${esc(task.priority)}
+     </span>
+
+     <span class="badge cat">
+      ${esc(task.category||"Other")}
+     </span>
+
+     ${
+      task.date
+      ?`
+       <span class="badge date ${
+        isOverdue(task)?"overdue":""
+       }">
+        ${
+         isOverdue(task)
+         ?"⚠️ Overdue · "
+         :"📅 "
+        }
+        ${formatDate(task.date)}
+       </span>
+      `
+      :""
+     }
+
+     ${
+      task.time
+      ?`
+       <span class="badge time">
+        ⏰ ${esc(task.time)}
+       </span>
+      `
+      :""
+     }
+
+    </div>
+
+   </div>
+
+   <button class="action edit">
+    Edit
+   </button>
+
+   <button class="action delete">
+    Delete
+   </button>
+
+  `;
+
+
+  li.querySelector(".check").onclick=()=>{
+
+   task.done=!task.done;
+
+   task.completedAt=
+    task.done?Date.now():null;
+
+   if(task.done){
+
+    history.push({
+     date:today(),
+     taskId:task.id
+    });
+
+    toast("Task completed ✓");
+
+   }else{
+
+    toast("Task marked pending");
+
+   }
+
+   save();
+   render();
+
+  };
+
+
+  li.querySelector(".edit").onclick=()=>{
+
+   const text=prompt(
+    "Edit task:",
+    task.text
+   );
+
+   if(text===null||!text.trim())
+    return;
+
+   const date=prompt(
+    "Due date (YYYY-MM-DD):",
+    task.date||""
+   );
+
+   if(date===null)
+    return;
+
+   const time=prompt(
+    "Reminder time (HH:MM):",
+    task.time||""
+   );
+
+   if(time===null)
+    return;
+
+   task.text=text.trim();
+   task.date=date.trim();
+   task.time=time.trim();
+
+   save();
+   render();
+
+   toast("Task updated ✨");
+
+  };
+
+
+  li.querySelector(".delete").onclick=()=>{
+
+   if(!confirm(
+    "Delete this task?"
+   ))
+    return;
+
+   tasks=tasks.filter(
+    x=>x.id!==task.id
+   );
+
+   save();
+   render();
+
+   toast("Task deleted");
+
+  };
+
+
+  list.appendChild(li);
+
+ });
+
+
+ updateStats();
+
+}
+
+
+/* STATS */
+
+function updateStats(){
+
+ const total=tasks.length;
+
+ const completed=
+  tasks.filter(x=>x.done).length;
+
+ const pending=
+  total-completed;
+
+ const overdue=
+  tasks.filter(isOverdue).length;
+
+ const percent=
+  total
+  ?Math.round(completed/total*100)
+  :0;
+
+
+ $("total").textContent=total;
+ $("done").textContent=completed;
+ $("pending").textContent=pending;
+ $("overdueCount").textContent=overdue;
+
+ $("percent").textContent=percent+"%";
+ $("progressBar").style.width=percent+"%";
+
+ $("taskLabel").textContent=
+  `${total} ${total===1?"task":"tasks"}`;
+
+
+ updateGoal(completed);
+ updateStreak();
+ updateScore(completed);
+ updateMotivation(percent);
+
+}
+
+
+function updateMotivation(percent){
+
+ let message=
+  "Organise your tasks, track your progress and check in with yourself.";
+
+ if(percent===100)
+  message="Everything is done. You made it happen today. ✨";
+
+ else if(percent>=75)
+  message="You're almost there. Keep going, you've got this. 🌿";
+
+ else if(percent>=40)
+  message="Nice progress. One small step at a time. 🌱";
+
+ $("motivation").textContent=message;
+
+}
+
+
+/* QUICK FILTER */
+
+document.querySelectorAll(".quick").forEach(button=>{
+
+ button.onclick=()=>{
+
+  document.querySelectorAll(".quick")
+   .forEach(x=>x.classList.remove("active"));
+
+  button.classList.add("active");
+
+  quickView=button.dataset.view;
+
+  render();
+
+ };
+
+});
+
+
+/* SEARCH / FILTER / SORT */
+
+$("filter").onchange=render;
+$("sort").onchange=render;
+$("searchInput").oninput=render;
+$("categoryFilter").onchange=render;
+
+
+/* CLEAR */
+
+$("clearBtn").onclick=()=>{
+
+ const count=
+  tasks.filter(x=>x.done).length;
+
+ if(!count){
+
+  toast("No completed tasks");
+
+  return;
+
+ }
+
+
+ if(!confirm(
+  `Clear ${count} completed task(s)?`
+ ))
+  return;
+
+
+ tasks=tasks.filter(
+  x=>!x.done
+ );
+
+ save();
+ render();
+
+ toast("Completed tasks cleared");
+
+};
+
+
+/* DAILY GOAL */
+
+$("goalInput").value=settings.goal;
+
+
+function updateGoal(completed){
+
+ const goal=Math.max(
+  1,
+  Number(settings.goal)||1
+ );
+
+ const percentage=Math.min(
+  100,
+  Math.round(completed/goal*100)
+ );
+
+ $("goalBar").style.width=
+  percentage+"%";
+
+ $("goalText").textContent=
+  completed>=goal
+  ?`Goal completed · ${completed}/${goal} 🎉`
+  :`${completed}/${goal} tasks completed`;
+
+}
+
+
+$("goalBtn").onclick=()=>{
+
+ const value=
+  Number($("goalInput").value);
+
+ if(!value||value<1)
+  return;
+
+ settings.goal=value;
+
+ save();
+
+ updateGoal(
+  tasks.filter(x=>x.done).length
+ );
+
+ toast("Daily goal updated 🎯");
+
+};
+
+
+/* STREAK */
+
+function completedOn(date){
+
+ return history.some(
+  x=>x.date===date
+ ) ||
+ tasks.some(
+  x=>x.done &&
+  x.completedAt &&
+  new Date(x.completedAt)
+   .toISOString()
+   .slice(0,10)===date
+ );
+
+}
+
+
+function getStreak(){
+
+ let streak=0;
+ let d=new Date();
+
+ while(true){
+
+  const date=
+   d.toISOString().slice(0,10);
+
+  if(completedOn(date)){
+
+   streak++;
+
+   d.setDate(
+    d.getDate()-1
+   );
+
+  }else{
+
+   break;
+
+  }
+
+ }
+
+ return streak;
+
+}
+
+
+function updateStreak(){
+
+ const value=getStreak();
+
+ $("streak").textContent=value;
+ $("streakText").textContent=
+  `🔥 ${value} day streak`;
+
+}
+
+
+function updateScore(completed){
+
+ const score=
+  completed*10+
+  getStreak()*5;
+
+ $("scoreText").textContent=
+  `🏆 Score ${score}`;
+
+}
+
+
+/* MOOD */
+
+document.querySelectorAll(".mood").forEach(button=>{
+
+ button.onclick=()=>{
+
+  document.querySelectorAll(".mood")
+   .forEach(x=>x.classList.remove("selected"));
+
+  button.classList.add("selected");
+
+  selectedMood={
+   mood:button.dataset.mood,
+   emoji:button.dataset.emoji
+  };
+
+ };
+
+});
+
+
+$("saveMood").onclick=()=>{
+
+ if(!selectedMood){
+
+  toast("Select your mood first 🙂");
+
+  return;
+
+ }
+
+
+ const date=today();
+
+ moods=moods.filter(
+  x=>x.date!==date
+ );
+
+
+ moods.unshift({
+
+  id:Date.now(),
+
+  date,
+
+  mood:selectedMood.mood,
+
+  emoji:selectedMood.emoji,
+
+  note:$("moodNote")
+   .value.trim()
+
+ });
+
+
+ moods=moods.slice(0,30);
+
+ $("moodNote").value="";
+
+ selectedMood=null;
+
+ document.querySelectorAll(".mood")
+  .forEach(x=>x.classList.remove("selected"));
+
+ save();
+
+ renderMoods();
+ renderMoodChart();
+
+ toast("Mood saved 💜");
+
+};
+
+
+/* MOOD HISTORY */
+
+function renderMoods(){
+
+ const current=
+  moods.find(x=>x.date===today());
+
+ $("todayMood").textContent=
+  current
+  ?`${current.emoji}  ${current.mood}`
+  :"No mood recorded today.";
+
+
+ const box=$("moodHistory");
+
+ box.innerHTML="";
+
+
+ if(!moods.length){
+
+  box.innerHTML=`
+   <div class="mood-entry">
+    <span class="history-emoji">🙂</span>
+    <div class="history-info">
+     <strong>No entries yet</strong>
+     <small>Your mood history will appear here.</small>
+    </div>
+   </div>
+  `;
+
+  return;
+
+ }
+
+
+ moods.slice(0,5).forEach(mood=>{
+
+  const item=document.createElement("div");
+
+  item.className="mood-entry";
+
+  item.innerHTML=`
+
+   <span class="history-emoji">
+    ${esc(mood.emoji)}
+   </span>
+
+   <div class="history-info">
+
+    <strong>${esc(mood.mood)}</strong>
+
+    <small>
+     ${formatDate(mood.date)}
+     ${mood.note?" · "+esc(mood.note):""}
+    </small>
+
+   </div>
+  `;
+
+  box.appendChild(item);
+
+ });
+
+}
+
+
+/* 7 DAY HELPERS */
+
+function lastSeven(){
+
+ const result=[];
+
+ for(let i=6;i>=0;i--){
+
+  const d=new Date();
+
+  d.setDate(
+   d.getDate()-i
+  );
+
+  result.push(
+   d.toISOString().slice(0,10)
+  );
+
+ }
+
+ return result;
+
+}
+
+
+/* PRODUCTIVITY CHART */
+
+function renderProductivityChart(){
+
+ const box=$("productivityChart");
+
+ box.innerHTML="";
+
+ const days=lastSeven();
+
+ days.forEach(date=>{
+
+  const count=
+   tasks.filter(task=>{
+
+    if(!task.done||!task.completedAt)
+     return false;
+
+    return new Date(task.completedAt)
+     .toISOString()
+     .slice(0,10)===date;
+
+   }).length;
+
+
+  const wrap=
+   document.createElement("div");
+
+  wrap.className="bar-wrap";
+
+  const number=
+   document.createElement("span");
+
+  number.className="bar-number";
+  number.textContent=count;
+
+  const bar=
+   document.createElement("div");
+
+  bar.className="bar";
+
+  bar.style.height=
+   Math.max(
+    3,
+    Math.min(100,count*22)
+   )+"%";
+
+
+  const label=
+   document.createElement("span");
+
+  label.className="bar-label";
+
+  label.textContent=
+   new Date(date+"T00:00:00")
+    .toLocaleDateString(
+     undefined,
+     {weekday:"short"}
+    )
+    .slice(0,2);
+
+
+  wrap.append(
+   number,
+   bar,
+   label
+  );
+
+  box.appendChild(wrap);
+
+ });
+
+}
+
+
+/* MOOD CHART */
+
+function moodValue(mood){
+
+ const values={
+  Amazing:5,
+  Happy:4,
+  Calm:3,
+  Low:2,
+  Bad:1
+ };
+
+ return values[mood]||0;
+
+}
+
+
+function renderMoodChart(){
+
+ const box=$("moodChart");
+
+ box.innerHTML="";
+
+ const days=lastSeven();
+
+ days.forEach(date=>{
+
+  const mood=
+   moods.find(x=>x.date===date);
+
+  const value=
+   mood?moodValue(mood.mood):0;
+
+
+  const wrap=
+   document.createElement("div");
+
+  wrap.className="bar-wrap";
+
+
+  const number=
+   document.createElement("span");
+
+  number.className="bar-number";
+  number.textContent=
+   mood?mood.emoji:"—";
+
+
+  const bar=
+   document.createElement("div");
+
+  bar.className="bar";
+
+  bar.style.height=
+   Math.max(
+    3,
+    value*18
+   )+"%";
+
+
+  const label=
+   document.createElement("span");
+
+  label.className="bar-label";
+
+  label.textContent=
+   new Date(date+"T00:00:00")
+    .toLocaleDateString(
+     undefined,
+     {weekday:"short"}
+    )
+    .slice(0,2);
+
+
+  wrap.append(
+   number,
+   bar,
+   label
+  );
+
+  box.appendChild(wrap);
+
+ });
+
+
+}
+
+
+/* NOTIFICATIONS */
+
+$("notificationBtn").onclick=async()=>{
+
+ if(!("Notification" in window)){
+
+  toast("Notifications aren't supported here");
+
+  return;
+
+ }
+
+
+ if(Notification.permission==="granted"){
+
+  new Notification(
+   "Task Garden 🌱",
+   {
+    body:"Your tasks are waiting for you."
+   }
+  );
+
+  toast("Notification sent 🔔");
+
+  return;
+
+ }
+
+
+ const permission=
+  await Notification.requestPermission();
+
+ if(permission==="granted"){
+
+  new Notification(
+   "Task Garden 🌱",
+   {
+    body:"Notifications are now enabled."
+   }
+  );
+
+  toast("Notifications enabled 🔔");
+
+ }else{
+
+  toast("Notification permission denied");
+
+ }
+
+};
+
+
+/* REMINDER CHECK */
+
+function checkReminders(){
+
+ const now=new Date();
+
+ const currentTime=
+  String(now.getHours()).padStart(2,"0")+
+  ":"+
+  String(now.getMinutes()).padStart(2,"0");
+
+
+ const key=
+  today()+"_"+currentTime;
+
+
+ tasks.forEach(task=>{
+
+  if(
+   task.done||
+   !task.date||
+   !task.time||
+   task.date!==today()||
+   task.time!==currentTime
+  )
+   return;
+
+
+  if(
+   localStorage.getItem(
+    "reminded_"+key+"_"+task.id
+   )
+  )
+   return;
+
+
+  localStorage.setItem(
+   "reminded_"+key+"_"+task.id,
+   "1"
+  );
+
+
+  toast("Reminder: "+task.text);
+
+
+  if(
+   "Notification" in window &&
+   Notification.permission==="granted"
+  ){
+
+   new Notification(
+    "Task Garden reminder ⏰",
+    {
+     body:task.text
+    }
+   );
+
+  }
+
+ });
+
+}
+
+
+setInterval(
+ checkReminders,
+ 30000
+);
+
+
+/* FOCUS MODE */
+
+function getFocusTask(){
+
+ return tasks.find(
+  task=>!task.done
+ );
+
+}
+
+
+function formatTimer(seconds){
+
+ const min=
+  Math.floor(seconds/60)
+   .toString()
+   .padStart(2,"0");
+
+ const sec=
+  (seconds%60)
+   .toString()
+   .padStart(2,"0");
+
+ return min+":"+sec;
+
+}
+
+
+function updateTimer(){
+
+ $("miniTimer").textContent=
+  formatTimer(focusSeconds);
+
+ $("bigTimer").textContent=
+  formatTimer(focusSeconds);
+
+}
+
+
+function startFocus(){
+
+ const task=getFocusTask();
+
+ if(!task){
+
+  toast("No pending task to focus on 🎉");
+
+  return;
+
+ }
+
+
+ $("focusTask").textContent=
+  task.text;
+
+ $("focusModalTask").textContent=
+  task.text;
+
+
+ $("focusOverlay")
+  .classList.add("show");
+
+
+ if(focusRunning)
+  return;
+
+
+ focusRunning=true;
+
+ focusInterval=
+  setInterval(()=>{
+
+   focusSeconds--;
+
+   updateTimer();
+
+   if(focusSeconds<=0){
+
+    clearInterval(focusInterval);
+
+    focusRunning=false;
+
+    focusSeconds=1500;
+
+    updateTimer();
+
+    toast("Focus session complete 🎉");
+
+   }
+
+  },1000);
+
+}
+
+
+$("focusStart").onclick=
+ startFocus;
+
+
+$("focusReset").onclick=()=>{
+
+ clearInterval(focusInterval);
+
+ focusRunning=false;
+ focusSeconds=1500;
+
+ updateTimer();
+
+};
+
+
+$("closeFocus").onclick=()=>{
+
+ clearInterval(focusInterval);
+
+ focusRunning=false;
+
+ $("focusOverlay")
+  .classList.remove("show");
+
+ focusSeconds=1500;
+
+ updateTimer();
+
+ toast("Focus session finished 🌿");
+
+};
+
+
+/* INITIAL */
+
+updateTimer();
+render();
+renderMoods();
+renderProductivityChart();
+renderMoodChart();
+updateGoal(
+ tasks.filter(x=>x.done).length
+);
+
+</script>
+
+</body>
+</html>
